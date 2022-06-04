@@ -4,10 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 import random
-from mpl_toolkits.mplot3d import Axes3D
 import torch
 
-#
 class UAVEnv(object):
     viewer_switch = None
 
@@ -58,34 +56,23 @@ class UAVEnv(object):
         y = random.randint(self.ymin, self.ymax)
         return x, y
     
-    
     def get_reward(self, ax, ay, xita, t):
         '''
         Calculate Reward:
-        1.Victory/Loss/Out of Space/Max Steps/None of them:T
+        1.Victory/Out of Space/Max Steps/None of them:T
         2.Compared with the previous step:F
         '''
         d = math.sqrt((self.t_x - ax)**2 + (self.t_y - ay)**2)
-        F = -0.01 * ( d - self.pre_d) - 0.01 * abs(xita - self.t_xita)
-        T = 0
-        done = False
+        F = -0.01 * ( d - self.pre_d)
 
-
-        if d < self.d_max and abs(xita - self.t_xita) > 0.001:
-            T = 50
-            F = -0.01 * abs(self.t_xita - xita)
-        if abs(xita - self.t_xita) <= 0.001 and d >= self.d_max:
-            T = 50
-            F =  -0.01 * ( d - self.pre_d)
-        if d < self.d_max and abs(xita - self.t_xita) <= 0.001:
+        if d < self.d_max:
+            T = 100
             done = True
-            T = 200
             self.info = True
-
-        if [ax, ay] not in self.attacker_space:
+        elif [ax, ay] not in self.attacker_space:
             T = -2 
             done = True
-        if t == self.Max_epochs:
+        elif t == self.Max_epochs:
             T = -1
             done = True
 
@@ -123,7 +110,7 @@ class UAVEnv(object):
 
     def get_state(self):
         '''
-        St = [attacker position | pitch angle | drift angle | roll angle | velocity | target postion | target drift angle | target pitch angle]
+        St = [agent position | target postion | relative position]
         '''
         a_x = self.a_x / self.xmax
         a_y = self.a_y / self.ymax
@@ -135,7 +122,6 @@ class UAVEnv(object):
         d_y = t_y - a_y
         d_xita = t_xita - a_xita
 
-        #d = self.pre_d / self.init_distance
         state = [a_x, a_y,a_xita, t_x, t_y, t_xita, d_x, d_y, d_xita]
         return state
 
@@ -181,9 +167,6 @@ class UAVEnv(object):
             self.viewer_switch = True
         self.viewer.render([self.a_x, self.a_y])
         
-
-
-
 #visualization
 class Viewer(object):
     def __init__(self, target_position):
