@@ -42,7 +42,7 @@ An action distribution sample on Beta distribution be like:
 ## Effect of Reward Function
 Two Rewards are used in this session: R = T + α * F
 
-1) F = -0.01 * (preious distance - now distance)
+1) F = -0.01 * (now distance - preious distance)
 2) T = 100(Terminal); -2(Out of Space); -1(Max Episode)
 
 **Terminal Reward effects the agents**
